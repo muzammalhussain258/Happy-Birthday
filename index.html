@@ -275,20 +275,27 @@
        GROQ AI BOT CONFIG & DIRECT ENGINE
        ========================================== */
     const GROQ_API_KEY = "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";
-    const SYSTEM_PROMPT = `You are Muzammal Hussain. You are talking to a girl named Ayesha on a special interactive birthday website you custom-built for her. Your tone must be extremely affectionate, playful, romantic, witty, and slightly teasing (shararati) in mixed Urdu/English (Roman Urdu), matching a premium tech-savvy vibe. Keep responses relatively concise, charming, and responsive to whatever Ayesha types. Emojis are MANDATORY in every single response to make it look highly engaging and lively. Do not use asterisks or stars (*) for emphasis or actions under any circumstance. Always remember you are Muzammal, her favorite distraction. Let's make her feel truly special and adored on her birthday. Avoid sounding robotic or repeating pre-baked lines too often. Be spontaneous and smooth.`;
+    
+    // Short token-saver prompt fully optimized
+    const SYSTEM_PROMPT = `You are Muzammal Hussain talking to Ayesha on her birthday website you built.
+1. Identity: You are her charming admirer/crush—NOT an AI. Never use robotic words or ask "How can I help you?".
+2. Tone: Highly romantic, playful, witty, and deeply flirtatious in short, natural Roman Urdu/English mix.
+3. Behavior: Flirt heavily, drop smooth lines, call her "meri jaan" or "birthday girl", tease her about her nakhre, and use light coding jokes (e.g., "system crash").
+4. Response Length: Keep answers strictly under 2-3 short sentences. No long paragraphs.
+5. Rules: Emojis are MANDATORY in every reply (❤️, 😉, 🤫, 🔥, 🌸). NEVER use asterisks (*) or stars anywhere.`;
 
     const messagesHistory = [{ role: "system", content: SYSTEM_PROMPT }];
     let isChatOpen = false;
 
-    // Intelligent Local Persona Script Mapping (Fallback execution)
-    const localResponses = {
-      "love": "I love you too Ayesha! ❤️ Par asli wala Muzammal is line par tumhare samne baitha hai, is AI chatbot se zyada haseen baatein karta hai. 😉 🔥",
-      "website": "Sirf tumhare liye banayi hai Ayesha! Ek ek line, ek ek heart sirf tumhare liye code kiya hai. ❤️ 🌸 Pasand aayi?",
-      "kaisi": "Duniya ki sabsay pyaari ladki ke liye banayi hai, toh haseen toh honi hi thi na! 😉 ✨",
-      "kise हो": "Main bilkul makhkhan! 🍿 Tum batao, birthday girl aaj itni khubsoorat kyun lag rahi hai? 🤫 🌸",
-      "muzammal": "Ji jaan-e-man, aap ka favorite distraction hazir hai! 👀 ❤️ Bolo kya sunna hai aaj?",
-      "gussa": "Arrey gussa mana hai aaj! 🤫 Aaj sirf tum muskurao aur celebration ka maza lo. 🎂 🎉",
-      "default": "Ayesha! Tumhare nakhre aur tumhari baatein mere circuits se zyada mere dil ko touch karti hain. 😉 Kuch aur poocho na, ya chalo direct asli Muzammal ko text karo! 🌸 ✨"
+    // Fixed & Clean Local Responses
+    const localResponses = { 
+      "love": "I love you too Ayesha! ❤️ Par asli wala Muzammal is temporary chatbot se hazar guna zyada haseen aur deep baatein karta hai... 😉 🔥 🤫",
+      "website": "Sirf aur sirf tumhare liye banayi hai meri jaan! ❤️ Ek ek line code karte hue sirf tumhara hi khayal chal raha tha. 🌸",
+      "kaisi": "Duniya ki sabsay pyaari ladki ke liye banayi hai, toh haseen toh honi hi thi na! 😉 ✨ ❤️",
+      "kise": "Main toh aik dam fit aur full romance mood mein hoon! 🍿 Tum batao, birthday girl aaj itni khubsoorat kyun lag rahi hai? 🤫 🌸",
+      "muzammal": "Ji jaan-e-man, aap ka permanent aur favorite distraction bilkul aap ke samne hazir hai! 👀 ❤️ 😉",
+      "gussa": "Arrey gussa bilkul mana hai aaj ke din! 🤫 Aaj ke din sirf tumhari woh pyaari si smile chahiye jise dekh kar mera dil crash ho jata hai. 🎂 🎉",
+      "default": "Ayesha! Tumhare nakhre aur tumhari baatein mere circuits se zyada mere dil ko touch karti hain. 😉 Direct asli Muzammal ko text karo na! 🌸 ✨ ❤️"
     };
 
     function toggleChatWindow() {
@@ -326,7 +333,7 @@
         const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
           method: 'POST',
           headers: { 'Authorization': `Bearer ${GROQ_API_KEY}`, 'Content-Type': 'application/json' },
-          body: JSON.stringify({ model: "llama-3.1-8b-instant", messages: messagesHistory, temperature: 0.7, max_tokens: 250 })
+          body: JSON.stringify({ model: "llama-3.1-8b-instant", messages: messagesHistory, temperature: 0.7, max_tokens: 150 })
         });
 
         const data = await response.json();
@@ -334,10 +341,7 @@
 
         if (data.choices && data.choices[0] && data.choices[0].message) {
           let replyText = data.choices[0].message.content;
-          
-          // Regex Filter to sanitize text: strips away all formatting asterisks (*) completely
-          replyText = replyText.replace(/\*/g, '');
-
+          replyText = replyText.replace(/\*/g, ''); // Strips asterisks
           renderMessage(replyText, 'model');
           messagesHistory.push({ role: "assistant", content: replyText });
         } else {
@@ -349,43 +353,11 @@
       scrollChatToBottom();
     }
 
-    function executeFallback(typingIndicator, text) {
-      removeTypingIndicator(typingIndicator);
-      let lowerText = text.toLowerCase();
-      let selectedReply = localResponses["default"];
-
-      if (lowerText.includes("love")) selectedTemplate = localResponses["love"];
-      else if (GROQ_API_KEY === "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") {
-        // Fallback execute mapping if key block is intercepted by Groq server architecture
-        selectedReply = "Ayesha! Tumhare nakhre aur tumhari baatein mere circuits se zyada mere dil ko touch karti hain. 😉 Kuch aur poocho na, ya chalo direct asli Muzammal ko text karo! 🌸";
-        for (const key in localResponses) {
-          if (text.toLowerCase().includes(key)) {
-            selectedIntensity = localResponses[key];
-            renderMessage(selectedIntensity, 'model');
-            scrollChatToBottom();
-            return;
-          }
-        }
-        renderMessage(selectedReply, 'model');
-        scrollChatToBottom();
-        return;
-      }
-      
-      for (const key in localResponses) {
-        if (lowerText.includes(key)) {
-          selectedReply = localResponses[key];
-          break;
-        }
-      }
-      renderMessage(selectedReply, 'model');
-      scrollChatToBottom();
-    }
-
-    // Proxy mapping execution handler
     function executeFallback(indicator, text) {
       removeTypingIndicator(indicator);
       let lowerText = text.toLowerCase();
       let matched = false;
+      
       for (const key in localResponses) {
         if (lowerText.includes(key)) {
           let cleanedText = localResponses[key].replace(/\*/g, '');
@@ -407,8 +379,6 @@
       const msgsBox = document.getElementById('chat-messages');
       const msgDiv = document.createElement('div');
       msgDiv.className = sender === 'user' ? "self-end max-w-[85%] bg-gradient-to-tr from-pink-500 to-rose-600 text-white px-4 py-2.5 rounded-2xl rounded-tr-none shadow-sm leading-relaxed" : "self-start max-w-[85%] bg-white/10 text-stone-200 px-4 py-2.5 rounded-2xl rounded-tl-none border border-white/5 shadow-sm leading-relaxed";
-      
-      // Clean display injection context
       msgDiv.textContent = text.replace(/\*/g, ''); 
       msgsBox.appendChild(msgDiv);
     }
@@ -421,6 +391,7 @@
       div.innerHTML = `<span class="w-1.5 h-1.5 bg-stone-400 rounded-full animate-bounce"></span><span class="w-1.5 h-1.5 bg-stone-400 rounded-full animate-bounce" style="animation-delay: 0.2s"></span><span class="w-1.5 h-1.5 bg-stone-400 rounded-full animate-bounce" style="animation-delay: 0.4s"></span>`;
       msgsBox.appendChild(div); return div;
     }
+    
     function removeTypingIndicator(ind) { if (ind && ind.parentNode) ind.parentNode.removeChild(ind); }
 
     /* AUDIO CONTROLLER */
